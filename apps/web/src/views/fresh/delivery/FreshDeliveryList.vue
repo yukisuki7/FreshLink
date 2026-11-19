@@ -35,7 +35,11 @@
               </a-popconfirm>
             </a-space>
           </a-form>
-          <a-popconfirm v-if="canWrite && current.status === 'IN_TRANSIT'" title="登记本次配送已送达？" @confirm="advance('finish')">
+          <a-popconfirm
+            v-if="canWrite && current.status === 'IN_TRANSIT'"
+            title="登记物流已送达？此操作不会再次扣减库存。"
+            @confirm="advance('finish')"
+          >
             <a-button type="primary" :disabled="busy">确认送达</a-button>
           </a-popconfirm>
         </template>

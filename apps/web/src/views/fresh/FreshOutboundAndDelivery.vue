@@ -21,7 +21,13 @@
   const deliveryId = ref<string>();
   const deliveryNavigation = ref(0);
   const stockBatchKey = computed(() => typeof route.query.stockBatchKey === 'string' ? route.query.stockBatchKey : undefined);
-  watch(stockBatchKey, (key) => { if (key) active.value = 'outbound'; });
+  watch(
+    [stockBatchKey, () => route.query.tab],
+    ([key, tab]) => {
+      active.value = !key && tab === 'delivery' ? 'delivery' : 'outbound';
+    },
+    { immediate: true },
+  );
 
   function showDelivery(id: string) {
     deliveryId.value = id;

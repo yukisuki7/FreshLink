@@ -8,6 +8,7 @@ import { useAppStoreWithOut } from './app';
 import { toRaw } from 'vue';
 import { transformObjToRoute, flatMultiLevelRoutes, addSlashToRouteComponent } from '/@/router/helper/routeHelper';
 import { transformRouteToMenu } from '/@/router/helper/menuHelper';
+import { applyFreshDemoMenu, hasMenuPath } from '/@/router/helper/freshDemoMenu';
 
 import projectSetting from '/@/settings/projectSetting';
 
@@ -47,6 +48,7 @@ interface PermissionState {
   // Backstage menu list
   backMenuList: Menu[];
   frontMenuList: Menu[];
+  freshDemoMenu: boolean;
   // 用户所拥有的权限
   authList: AuthItem[];
   // 全部权限配置
@@ -68,6 +70,7 @@ export const usePermissionStore = defineStore({
     backMenuList: [],
     // menu List
     frontMenuList: [],
+    freshDemoMenu: false,
     authList: [],
     allAuthList: [],
     sysSafeMode: false,
@@ -121,6 +124,7 @@ export const usePermissionStore = defineStore({
       this.isDynamicAddedRoute = false;
       this.permCodeList = [];
       this.backMenuList = [];
+      this.freshDemoMenu = false;
       this.lastBuildMenuTime = 0;
     },
     async changePermissionCode() {
@@ -271,7 +275,11 @@ export const usePermissionStore = defineStore({
 
           // 构建后台路由菜单
           const backMenuList = transformRouteToMenu(routeList);
-          this.setBackMenuList(backMenuList);
+          this.freshDemoMenu =
+            userStore.getUserInfo.username?.toLowerCase() !== 'admin' &&
+            (this.getPermCodeList.some((code) => code === 'outorder:wms_out_orders:add') ||
+              hasMenuPath(backMenuList, '/fresh/my-store'));
+          this.setBackMenuList(this.freshDemoMenu ? applyFreshDemoMenu(backMenuList) : backMenuList);
 
           // 删除meta.ignoreRoute项
           routeList = filter(routeList, routeRemoveIgnoreFilter);

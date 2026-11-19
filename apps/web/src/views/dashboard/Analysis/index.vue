@@ -1,4 +1,6 @@
 <template>
+  <FreshDemoHome v-if="permissionStore.freshDemoMenu" />
+  <template v-else>
   <IndexChart v-if="indexStyle === 0"></IndexChart>
   <IndexDef v-if="indexStyle === 1"></IndexDef>
   <IndexBdc v-if="indexStyle == 2"></IndexBdc>
@@ -12,6 +14,7 @@
       <a-radio :value="3">我的任务</a-radio>
     </a-radio-group>
   </div>
+  </template>
 </template>
 <script lang="ts" setup>
   import { ref } from 'vue';
@@ -19,6 +22,9 @@
   import IndexChart from './homePage/IndexChart.vue';
   import IndexBdc from './homePage/IndexBdc.vue';
   import IndexTask from './homePage/IndexTask.vue';
+  import { usePermissionStore } from '/@/store/modules/permission';
+  import FreshDemoHome from './FreshDemoHome.vue';
 
   const indexStyle = ref(0);
+  const permissionStore = usePermissionStore();
 </script>

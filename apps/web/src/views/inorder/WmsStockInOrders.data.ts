@@ -7,7 +7,8 @@ import { getWeekMonthQuarterYear } from '/@/utils';
 import {Input} from "ant-design-vue";
 import {list} from "@/views/warehouse/WmsWarehouses.api";
 import {defHttp} from "@/utils/http/axios";
-import {getTenantId, getToken} from '/@/utils/auth';
+import { getTenantId } from '/@/utils/auth';
+import { useUserStoreWithOut } from '/@/store/modules/user';
 import { getInboundQuantityError } from './inboundValidation';
 import { inboundSupplierOptions } from '/@/views/fresh/suppliers/FreshSupplier.api';
 import { getDictItemsByCode } from '/@/utils/dict';
@@ -137,10 +138,18 @@ export const columns: BasicColumn[] = [
     dataIndex: 'totalDefectiveQuantity'
    },
 ];
-export const userlist = (params) =>{
-  let tenantId = getTenantId();
-  return defHttp.get({url: '/sys/tenant/getTenantUserList?column=createTime&order=desc&pageNo=1&pageSize=10&userTenantId='+tenantId+'&_t=1755166496064', params});
-}
+const listReceiveOperators = async (params) => {
+  const tenantId = Number(getTenantId());
+  if (tenantId > 0) {
+    return defHttp.get({
+      url: '/sys/tenant/getTenantUserList',
+      params: { ...params, column: 'createTime', order: 'desc', pageNo: 1, pageSize: 10, userTenantId: tenantId },
+    });
+  }
+
+  const { id, realname, username } = useUserStoreWithOut().getUserInfo;
+  return { records: id ? [{ id, realname: realname || username }] : [] };
+};
 
 //创建收货任务
 //表单数据
@@ -151,7 +160,7 @@ export const receiveTaskAdd: FormSchema[] = [
     field: 'operator',
     component: 'ApiSelect',
     componentProps: {
-      api: userlist,
+      api: listReceiveOperators,
       resultField: 'records',
       labelField: 'realname',
       valueField: 'id',

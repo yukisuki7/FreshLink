@@ -1,5 +1,16 @@
 import type { Menu } from '../../src/router/types';
-import { applyFreshDemoMenu, hasMenuPath } from '../../src/router/helper/freshDemoMenu';
+import { applyFreshDemoMenu, hasMenuPath, shouldUseFreshDemoMenu } from '../../src/router/helper/freshDemoMenu';
+
+test('课堂模式必须显式开启且保留管理员的完整导航', () => {
+  const writePermissions = ['outorder:wms_out_orders:add'];
+  const storeMenus = [{ name: '我的门店', path: '/fresh/my-store' }];
+  expect(shouldUseFreshDemoMenu(false, 'legacy_operator', writePermissions, [])).toBe(false);
+  expect(shouldUseFreshDemoMenu(false, 'fresh_store_a', [], storeMenus)).toBe(false);
+  expect(shouldUseFreshDemoMenu(true, 'ADMIN', writePermissions, storeMenus)).toBe(false);
+  expect(shouldUseFreshDemoMenu(true, 'unrelated_user', [], [])).toBe(false);
+  expect(shouldUseFreshDemoMenu(true, 'fresh_wh', writePermissions, [])).toBe(true);
+  expect(shouldUseFreshDemoMenu(true, 'fresh_store_a', [], storeMenus)).toBe(true);
+});
 
 test('课堂菜单保留后端授予的入口，移除旧波次并收口标签', () => {
   const granted: Menu[] = [

@@ -47,6 +47,7 @@ declare global {
   }
   interface ImportMetaEnv extends ViteEnv {
     __: unknown;
+    readonly VITE_FRESH_CLASSROOM_MODE?: string;
   }
 
   declare interface ViteEnv {

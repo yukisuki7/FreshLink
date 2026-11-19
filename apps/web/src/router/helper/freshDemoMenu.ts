@@ -21,6 +21,16 @@ const labels = new Map([
   [deliveryPath, '选批出库与配送'],
 ]);
 
+export function shouldUseFreshDemoMenu(
+  classroomMode: boolean,
+  username: string | undefined,
+  permissions: readonly (string | number)[],
+  menus: Menu[],
+): boolean {
+  return classroomMode && !!username && username.toLowerCase() !== 'admin' &&
+    (permissions.includes('outorder:wms_out_orders:add') || hasMenuPath(menus, '/fresh/my-store'));
+}
+
 export function applyFreshDemoMenu(menus: Menu[]): Menu[] {
   return menus.flatMap<Menu>((menu) => {
     if (menu.hideMenu) return [];

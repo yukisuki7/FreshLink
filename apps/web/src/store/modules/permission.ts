@@ -8,7 +8,7 @@ import { useAppStoreWithOut } from './app';
 import { toRaw } from 'vue';
 import { transformObjToRoute, flatMultiLevelRoutes, addSlashToRouteComponent } from '/@/router/helper/routeHelper';
 import { transformRouteToMenu } from '/@/router/helper/menuHelper';
-import { applyFreshDemoMenu, hasMenuPath } from '/@/router/helper/freshDemoMenu';
+import { applyFreshDemoMenu, shouldUseFreshDemoMenu } from '/@/router/helper/freshDemoMenu';
 
 import projectSetting from '/@/settings/projectSetting';
 
@@ -275,10 +275,12 @@ export const usePermissionStore = defineStore({
 
           // 构建后台路由菜单
           const backMenuList = transformRouteToMenu(routeList);
-          this.freshDemoMenu =
-            userStore.getUserInfo.username?.toLowerCase() !== 'admin' &&
-            (this.getPermCodeList.some((code) => code === 'outorder:wms_out_orders:add') ||
-              hasMenuPath(backMenuList, '/fresh/my-store'));
+          this.freshDemoMenu = shouldUseFreshDemoMenu(
+            import.meta.env.VITE_FRESH_CLASSROOM_MODE === 'true',
+            userStore.getUserInfo.username,
+            this.getPermCodeList,
+            backMenuList,
+          );
           this.setBackMenuList(this.freshDemoMenu ? applyFreshDemoMenu(backMenuList) : backMenuList);
 
           // 删除meta.ignoreRoute项
